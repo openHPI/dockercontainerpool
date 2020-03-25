@@ -165,6 +165,3 @@ DEPENDENCIES
   spring
   spring-watcher-listen (~> 2.0.0)
   tzinfo-data
-
-BUNDLED WITH
-   2.0.2
