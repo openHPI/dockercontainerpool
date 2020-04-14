@@ -10,6 +10,9 @@ rvm:
 cache:
   bundler: true
 
+addons:
+  postgresql: "10"
+
 before_install:
   - sudo sed -i '/ExecStart=\/usr\/bin\/dockerd -H fd:\/\//c\ExecStart=\/usr\/bin\/dockerd' /lib/systemd/system/docker.service
   - sudo systemctl daemon-reload
