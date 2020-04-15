@@ -110,6 +110,7 @@ class DockerClient
     container.stop.kill
     container.port_bindings.values.each { |port| PortPool.release(port) }
     clean_container_workspace(container)
+    FileUtils.rmtree(local_workspace_path(container))
 
     # Checks only if container assignment is not nil and not whether the container itself is still present.
     if container
