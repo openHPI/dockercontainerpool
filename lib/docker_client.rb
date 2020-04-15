@@ -67,6 +67,7 @@ class DockerClient
     # this is however not guaranteed and caused issues on the server already. Therefore create the necessary folders manually!
     local_workspace_path = generate_local_workspace_path
     FileUtils.mkdir(local_workspace_path)
+    FileUtils.chmod_R(0777, local_workspace_path)
     container.start(container_start_options(execution_environment, local_workspace_path))
     container.start_time = Time.now
     container.status = :created
