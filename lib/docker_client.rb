@@ -22,9 +22,9 @@ class DockerClient
     if local_workspace_path && Pathname.new(local_workspace_path).exist?
       Pathname.new(local_workspace_path).children.each do |p|
         p.rmtree
-      rescue Errno::ENOENT => error
+      rescue Errno::ENOENT, Errno::EACCES => error
         Raven.capture_exception(error)
-        Rails.logger.error('clean_container_workspace: Got Errno::ENOENT: ' + error.to_s)
+        Rails.logger.error("clean_container_workspace: Got #{error.class.to_s}: #{error.to_s}")
       end
       #FileUtils.rmdir(Pathname.new(local_workspace_path))
     end
@@ -110,8 +110,13 @@ class DockerClient
     Rails.logger.info('destroying container ' + container.to_s)
     container.stop.kill
     container.port_bindings.values.each { |port| PortPool.release(port) }
-    clean_container_workspace(container)
-    FileUtils.rmtree(local_workspace_path(container))
+    begin
+      clean_container_workspace(container)
+      FileUtils.rmtree(local_workspace_path(container))
+    rescue Errno::ENOENT, Errno::EACCES => error
+      Raven.capture_exception(error)
+      Rails.logger.error("clean_container_workspace: Got #{error.class.to_s}: #{error.to_s}")
+    end
 
     # Checks only if container assignment is not nil and not whether the container itself is still present.
     if container
