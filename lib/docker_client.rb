@@ -81,13 +81,13 @@ class DockerClient
       container.re_use = false
       if container.status != :executing
         container.docker_client.kill_container(container, false)
-        Rails.logger.info('Killing container in status ' + container.status + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
+        Rails.logger.info('Killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
       else
         Thread.new do
           timeout = SELF_DESTROY_GRACE_PERIOD.to_i
           sleep(timeout)
           container.docker_client.kill_container(container, false)
-          Rails.logger.info('Force killing container in status ' + container.status + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
+          Rails.logger.info('Force killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
         ensure
           # guarantee that the thread is releasing the DB connection after it is done
           ActiveRecord::Base.connection_pool.release_connection
