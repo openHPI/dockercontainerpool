@@ -69,7 +69,7 @@ class ContainerPool
   def create_container(execution_environment)
     Rails.logger.info('trying to create container for execution environment: ' + execution_environment.to_s)
     container = DockerClient.create_container(execution_environment)
-    container.status = 'available' # FIXME: String vs Symbol usage?
+    container.status = :available
     #Rails.logger.debug('created container ' + container.to_s + ' for execution environment ' + execution_environment.to_s)
     add_to_all_containers(container, execution_environment)
     container
@@ -77,7 +77,7 @@ class ContainerPool
 
   def return_container(container, execution_environment)
     container.docker_client.exit_thread_if_alive
-    container.status = 'available' # FIXME: String vs Symbol usage?
+    container.status = :available
     if @containers[execution_environment.id] && !@containers[execution_environment.id].include?(container) && container.re_use
       @containers[execution_environment.id].push(container)
     else
@@ -96,6 +96,7 @@ class ContainerPool
           # check whether the container is running. exited containers go to the else part.
           # Dead containers raise a NotFOundError on the container.json call. This is handled in the rescue block.
           if (container.json['State']['Running'])
+            container.status = :executing
             Rails.logger.debug('get_container remaining avail. containers:  ' + @containers[execution_environment.id].size.to_s)
             Rails.logger.debug('get_container all container count: ' + @all_containers[execution_environment.id].size.to_s)
           else
@@ -122,6 +123,7 @@ class ContainerPool
     if missing_counter_count > 0
       Rails.logger.error('replace_broken_container: Creating a new container and returning that.')
       new_container = create_container(execution_environment)
+      new_container.status = :executing
       add_to_all_containers(new_container, execution_environment)
     else
       Rails.logger.error('Broken container removed for ' + execution_environment.to_s + ' but not creating a new one. Currently, ' + missing_counter_count.abs.to_s + ' more containers than the configured pool size are available.')
