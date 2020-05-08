@@ -39,7 +39,6 @@ class DockerClient
         'Image' => find_image_by_tag(execution_environment.docker_image).info['RepoTags'].first,
         'Memory' => execution_environment.memory_limit.megabytes,
         'NetworkDisabled' => !execution_environment.network_enabled?,
-        #'HostConfig' => { 'CpusetCpus' => '0', 'CpuQuota' => 10000 },
         #DockerClient.config['allowed_cpus']
         'OpenStdin' => true,
         'StdinOnce' => true,
@@ -51,9 +50,14 @@ class DockerClient
     }
   end
 
-  def self.container_start_options(execution_environment, local_workspace_path)
+  def self.container_start_options(container, execution_environment, local_workspace_path)
     {
         'Binds' => mapped_directories(local_workspace_path),
+        'CpuPeriod' => 100000,
+        'CpuQuota' => 100000,
+        'PidsLimit' => 5000,
+        'KernelMemory' => 5.megabytes,
+        'Memory' => 512.megabytes,
         'PortBindings' => mapped_ports(execution_environment)
     }
   end
@@ -68,7 +72,7 @@ class DockerClient
     local_workspace_path = generate_local_workspace_path
     FileUtils.mkdir(local_workspace_path)
     FileUtils.chmod_R(0777, local_workspace_path)
-    container.start(container_start_options(execution_environment, local_workspace_path))
+    container.start(container_start_options(container, execution_environment, local_workspace_path))
     container.start_time = Time.now
     container.status = :created
     container.execution_environment = execution_environment
