@@ -34,7 +34,7 @@ class DockerClient
     @config ||= CodeOcean::Config.new(:docker).read(erb: true)
   end
 
-  def self.container_creation_options(execution_environment)
+  def self.container_creation_options(execution_environment, local_workspace_path)
     {
         'Image' => find_image_by_tag(execution_environment.docker_image).info['RepoTags'].first,
         'Memory' => execution_environment.memory_limit.megabytes,
@@ -46,33 +46,28 @@ class DockerClient
         'AttachStdout' => true,
         'AttachStdin' => true,
         'AttachStderr' => true,
-        'Tty' => true
-    }
-  end
-
-  def self.container_start_options(container, execution_environment, local_workspace_path)
-    {
+        'Tty' => true,
         'Binds' => mapped_directories(local_workspace_path),
+        'PortBindings' => mapped_ports(execution_environment),
+        # Resource limitations.
         'CpuPeriod' => 100000,
         'CpuQuota' => 100000,
-        'PidsLimit' => 5000,
-        'KernelMemory' => 5.megabytes,
+        'PidsLimit' => 100,
+        'KernelMemory' => 16.megabytes,
         'Memory' => 512.megabytes,
-        'PortBindings' => mapped_ports(execution_environment)
+        'OomScoreAdj' => 500
     }
   end
 
   def self.create_container(execution_environment)
     tries ||= 0
-    #Rails.logger.info "docker_client: self.create_container with creation options:"
-    #Rails.logger.info(container_creation_options(execution_environment))
-    container = Docker::Container.create(container_creation_options(execution_environment))
     # container.start sometimes creates the passed local_workspace_path on disk (depending on the setup).
     # this is however not guaranteed and caused issues on the server already. Therefore create the necessary folders manually!
     local_workspace_path = generate_local_workspace_path
     FileUtils.mkdir(local_workspace_path)
     FileUtils.chmod_R(0777, local_workspace_path)
-    container.start(container_start_options(container, execution_environment, local_workspace_path))
+    container = Docker::Container.create(container_creation_options(execution_environment, local_workspace_path))
+    container.start
     container.start_time = Time.now
     container.status = :created
     container.execution_environment = execution_environment
