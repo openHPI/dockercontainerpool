@@ -137,7 +137,7 @@ class DockerClient
     " ""
     container.status = :executing
     @thread = Thread.new do
-      timeout = @execution_environment.permitted_execution_time.to_i # seconds
+      timeout = (@execution_environment.permitted_execution_time.to_i + 3)  # seconds and some extra time for request handling
       sleep(timeout)
       container = ContainerPool.instance.translate(container.id)
       if container && container.status != :available
