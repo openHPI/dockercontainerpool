@@ -50,11 +50,11 @@ class DockerClient
         'Binds' => mapped_directories(local_workspace_path),
         'PortBindings' => mapped_ports(execution_environment),
         # Resource limitations.
-        'CpuPeriod' => 100000,
-        'CpuQuota' => 100000,
+        'NanoCPUs' => 2 * 1000000000, # CPU quota in units of 10-9 CPUs.
         'PidsLimit' => 100,
-        'KernelMemory' => 16.megabytes,
+        'KernelMemory' => 512.megabytes, # if below Memory, the Docker host (!) might experience an OOM
         'Memory' => 512.megabytes,
+        'MemorySwap' => 512.megabytes, # same value as Memory to disable Swap
         'OomScoreAdj' => 500
     }
   end
