@@ -50,7 +50,7 @@ class DockerClient
         'Binds' => mapped_directories(local_workspace_path),
         'PortBindings' => mapped_ports(execution_environment),
         # Resource limitations.
-        'NanoCPUs' => 2 * 1000000000, # CPU quota in units of 10-9 CPUs.
+        'NanoCPUs' => 4 * 1000000000, # CPU quota in units of 10^-9 CPUs.
         'PidsLimit' => 100,
         'KernelMemory' => 512.megabytes, # if below Memory, the Docker host (!) might experience an OOM
         'Memory' => 512.megabytes,
