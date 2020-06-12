@@ -49,6 +49,7 @@ class DockerClient
         'Tty' => true,
         'Binds' => mapped_directories(local_workspace_path),
         'PortBindings' => mapped_ports(execution_environment),
+        'AutoRemove' => true,
         # Resource limitations.
         'NanoCPUs' => 4 * 1000000000, # CPU quota in units of 10^-9 CPUs.
         'PidsLimit' => 100,
