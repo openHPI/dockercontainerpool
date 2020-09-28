@@ -16,7 +16,7 @@ class DockerClient
 
   def self.clean_container_workspace(container)
     # remove files when using transferral via Docker API archive_in (transmit)
-    #container.exec(['bash', '-c', 'rm -rf ' + CONTAINER_WORKSPACE_PATH + '/*'])
+    # container.exec(['bash', '-c', 'rm -rf ' + CONTAINER_WORKSPACE_PATH + '/*'])
 
     local_workspace_path = local_workspace_path(container)
     if local_workspace_path && Pathname.new(local_workspace_path).exist?
@@ -26,7 +26,7 @@ class DockerClient
         Raven.capture_exception(error)
         Rails.logger.error("clean_container_workspace: Got #{error.class.to_s}: #{error.to_s}")
       end
-      #FileUtils.rmdir(Pathname.new(local_workspace_path))
+      # FileUtils.rmdir(Pathname.new(local_workspace_path))
     end
   end
 
@@ -37,7 +37,6 @@ class DockerClient
   def self.container_creation_options(execution_environment, local_workspace_path)
     {
         'Image' => find_image_by_tag(execution_environment.docker_image).info['RepoTags'].first,
-        'Memory' => execution_environment.memory_limit.megabytes,
         'NetworkDisabled' => !execution_environment.network_enabled?,
         #DockerClient.config['allowed_cpus']
         'OpenStdin' => true,
@@ -49,13 +48,12 @@ class DockerClient
         'Tty' => true,
         'Binds' => mapped_directories(local_workspace_path),
         'PortBindings' => mapped_ports(execution_environment),
-        'AutoRemove' => true,
         # Resource limitations.
         'NanoCPUs' => 4 * 1000000000, # CPU quota in units of 10^-9 CPUs.
         'PidsLimit' => 100,
-        'KernelMemory' => 512.megabytes, # if below Memory, the Docker host (!) might experience an OOM
-        'Memory' => 512.megabytes,
-        'MemorySwap' => 512.megabytes, # same value as Memory to disable Swap
+        'KernelMemory' => execution_environment.memory_limit.megabytes, # if below Memory, the Docker host (!) might experience an OOM
+        'Memory' => execution_environment.memory_limit.megabytes,
+        'MemorySwap' => execution_environment.memory_limit.megabytes, # same value as Memory to disable Swap
         'OomScoreAdj' => 500
     }
   end
@@ -108,7 +106,7 @@ class DockerClient
 
   def self.destroy_container(container)
     Rails.logger.info('destroying container ' + container.to_s)
-    container.stop.kill
+    container.kill
     container.port_bindings.values.each { |port| PortPool.release(port) }
     begin
       clean_container_workspace(container)
@@ -119,9 +117,7 @@ class DockerClient
     end
 
     # Checks only if container assignment is not nil and not whether the container itself is still present.
-    if container
-      container.delete(force: true, v: true)
-    end
+    container&.delete(force: true, v: true)
   rescue Docker::Error::NotFoundError => error
     Rails.logger.error('destroy_container: Rescued from Docker::Error::NotFoundError: ' + error.to_s)
     Rails.logger.error('No further actions are done concerning that.')
@@ -132,10 +128,10 @@ class DockerClient
 
 
   def kill_after_timeout(container)
-    "" "
+    """
     We need to start a second thread to kill the websocket connection,
     as it is impossible to determine whether further input is requested.
-    " ""
+    """
     container.status = :executing
     @thread = Thread.new do
       timeout = (@execution_environment.permitted_execution_time.to_i + 3)  # seconds and some extra time for request handling
@@ -158,9 +154,7 @@ class DockerClient
   end
 
   def exit_thread_if_alive
-    if (@thread && @thread.alive?)
-      @thread.exit
-    end
+    @thread.exit if @thread&.alive?
   end
 
   def exit_container(container)
@@ -220,14 +214,13 @@ class DockerClient
     @execution_environment = options[:execution_environment]
     # todo: eventually re-enable this if it is cached. But in the end, we do not need this.
     # docker daemon got much too much load. all not 100% necessary calls to the daemon were removed.
-    #@image = self.class.find_image_by_tag(@execution_environment.docker_image)
-    #fail(Error, "Cannot find image #{@execution_environment.docker_image}!") unless @image
+    # @image = self.class.find_image_by_tag(@execution_environment.docker_image)
+    # fail(Error, "Cannot find image #{@execution_environment.docker_image}!") unless @image
   end
 
   def self.initialize_environment
-    unless config[:connection_timeout] && config[:workspace_root]
-      fail(Error, 'Docker configuration missing!')
-    end
+    raise(Error, 'Docker configuration missing!') unless config[:connection_timeout] && config[:workspace_root]
+
     Docker.url = config[:host] if config[:host]
     # todo: availability check disabled for performance reasons. Reconsider if this is necessary.
     # docker daemon got much too much load. all not 100% necessary calls to the daemon were removed.
@@ -265,8 +258,7 @@ class DockerClient
     container.status = :available
   end
 
-  #private :return_container
+  # private :return_container
 
-  class Error < RuntimeError;
-  end
+  class Error < RuntimeError; end
 end
