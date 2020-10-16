@@ -1,24 +1,25 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This project is designed to work in conjunction with [CodeOcean](https://github.com/openHPI/codeocean) **on the same local machine**.
 
-Things you may want to cover:
+## Local Setup
 
-* Ruby version
+The setup is similar to CodeOcean and (unfortunately), this ReadMe is still work in progress. Assuming you have CodeOcean installed, perform these steps for the DockerContainerPool in the project root:
 
-* System dependencies
+```shell script
+bundle install
+```
 
-* Configuration
+Check `database.yml` for the correct database name (use the same as for CodeOcean!) and validate `docker.yml.erb` (both are in the `config` directory). You don't need to initialize a dedicated database for this project.
 
-* Database creation
+In order to allow seamless filesharing for Docker contaiers, you should set the following symlink, depending on the environment you wish to run the server. Replace `$SOURCE_ROOT` with a valid path to the CodeOcean repository and this repositroy.
 
-* Database initialization
+```
+ln -s $SOURCE_ROOT/CodeOcean/tmp/files/development $SOURCE_ROOT/DockerContainerPool/tmp/files
+```
 
-* How to run the test suite
+Once you're done, start the server:
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```
+rails s
+```
