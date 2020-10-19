@@ -132,7 +132,6 @@ class DockerClient
     We need to start a second thread to kill the websocket connection,
     as it is impossible to determine whether further input is requested.
     """
-    container.status = :executing
     @thread = Thread.new do
       timeout = (@execution_environment.permitted_execution_time.to_i + 3)  # seconds and some extra time for request handling
       sleep(timeout)
@@ -255,7 +254,6 @@ class DockerClient
       Rails.logger.info('Nothing is done here additionally. The container will be exchanged upon its next retrieval.')
     end
     ContainerPool.instance.return_container(container, execution_environment)
-    container.status = :available
   end
 
   # private :return_container

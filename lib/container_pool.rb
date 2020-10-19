@@ -88,15 +88,19 @@ class ContainerPool
   def get_container(execution_environment)
     # if pooling is active, do pooling, otherwise just create an container and return it
     if config[:active]
-      container = @containers[execution_environment.id].try(:shift) || nil
+      container = nil
+      # Use a mutex here to prevent that a container is used from the list and destroyed at the same time
+      mutex.synchronize {
+        container = @containers[execution_environment.id].try(:shift) || nil
+        container&.status = :executing
+      }
       Rails.logger.debug('get_container fetched container  ' + container.to_s + ' for execution environment ' + execution_environment.to_s)
       # just access and the following if we got a container. Otherwise, the execution_environment might be just created and not fully exist yet.
-      if (container)
+      if container
         begin
           # check whether the container is running. exited containers go to the else part.
-          # Dead containers raise a NotFOundError on the container.json call. This is handled in the rescue block.
-          if (container.json['State']['Running'])
-            container.status = :executing
+          # Dead containers raise a NotFoundError on the container.json call. This is handled in the rescue block.
+          if container.json['State']['Running']
             Rails.logger.debug('get_container remaining avail. containers:  ' + @containers[execution_environment.id].size.to_s)
             Rails.logger.debug('get_container all container count: ' + @all_containers[execution_environment.id].size.to_s)
           else
@@ -109,12 +113,13 @@ class ContainerPool
           container = replace_broken_container(container, execution_environment)
         end
       end
-      # returning nil is no problem. then the pool is just depleted.
-      container.docker_client.kill_after_timeout(container) unless container.blank?
-      container
     else
-      create_container(execution_environment)
+      container = create_container(execution_environment)
+      container&.status = :executing
     end
+    # returning nil is no problem. then the pool is just depleted.
+    container.docker_client.kill_after_timeout(container) unless container.blank?
+    container
   end
 
   def replace_broken_container(container, execution_environment)
@@ -124,7 +129,6 @@ class ContainerPool
       Rails.logger.error('replace_broken_container: Creating a new container and returning that.')
       new_container = create_container(execution_environment)
       new_container.status = :executing
-      add_to_all_containers(new_container, execution_environment)
     else
       Rails.logger.error('Broken container removed for ' + execution_environment.to_s + ' but not creating a new one. Currently, ' + missing_counter_count.abs.to_s + ' more containers than the configured pool size are available.')
       new_container = get_container(execution_environment)
