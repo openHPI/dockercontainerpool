@@ -1,5 +1,7 @@
 # README
 
+[![Build Status](https://travis-ci.com/openHPI/dockercontainerpool.svg?branch=master)](https://travis-ci.com/openHPI/dockercontainerpool)
+
 This project is designed to work in conjunction with [CodeOcean](https://github.com/openHPI/codeocean) **on the same local machine**.
 
 ## Local Setup
