@@ -2,10 +2,13 @@ require 'concurrent'
 require 'pathname'
 
 class DockerClient
+  def self.config
+    @config ||= CodeOcean::Config.new(:docker).read(erb: true)
+  end
+
   CONTAINER_WORKSPACE_PATH = '/workspace' #'/home/python/workspace' #'/tmp/workspace'
   # Ralf: I suggest to replace this with the environment variable. Ask Hauke why this is not the case!
-  # FIXME: CHANGE VIA SYMLINK!
-  LOCAL_WORKSPACE_ROOT = Rails.root.join('tmp', 'files', Rails.env)
+  LOCAL_WORKSPACE_ROOT = File.expand_path(self.config[:workspace_root])
   RECYCLE_CONTAINERS = true
   RETRY_COUNT = 2
   MINIMUM_CONTAINER_LIFETIME = 10.minutes
@@ -228,13 +231,12 @@ class DockerClient
   end
 
   def self.local_workspace_path(container)
-    Pathname.new(container.binds.first.split(':').first.sub(config[:workspace_root], LOCAL_WORKSPACE_ROOT.to_s)) if container.binds.present?
+    Pathname.new(container.binds.first.split(':').first) if container.binds.present?
   end
 
   def self.mapped_directories(local_workspace_path)
-    remote_workspace_path = local_workspace_path.sub(LOCAL_WORKSPACE_ROOT.to_s, config[:workspace_root])
     # create the string to be returned
-    ["#{remote_workspace_path}:#{CONTAINER_WORKSPACE_PATH}"]
+    ["#{local_workspace_path}:#{CONTAINER_WORKSPACE_PATH}"]
   end
 
   def self.mapped_ports(execution_environment)
