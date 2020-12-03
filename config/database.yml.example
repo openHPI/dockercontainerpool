@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  password: CHANGE_ME
+  pool: 16
+  username: postgres
+
+development:
+  <<: *default
+  database: codeocean_development
+
+production:
+  <<: *default
+  database: codeocean_production
+
+test:
+  <<: *default
+  database: codeocean_test
