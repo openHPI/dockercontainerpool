@@ -33,10 +33,6 @@ class DockerClient
     end
   end
 
-  def self.config
-    @config ||= CodeOcean::Config.new(:docker).read(erb: true)
-  end
-
   def self.container_creation_options(execution_environment, local_workspace_path)
     {
         'Image' => find_image_by_tag(execution_environment.docker_image).info['RepoTags'].first,
