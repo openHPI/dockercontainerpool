@@ -23,6 +23,7 @@ describe ContainerPool do
 
   before(:each) do
     @execution_environment = FactoryBot.create(:ruby)
+    container.docker_client.instance_variable_set(:@execution_environment, @execution_environment)
     reload_class
   end
 
