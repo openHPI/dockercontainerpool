@@ -50,7 +50,7 @@ describe ContainerPool do
     context 'when active' do
       before(:each) do
         expect(described_class).to receive(:config).and_return(active: true)
-          allow(container).to receive(:status=)
+        allow(container).to receive(:status=)
       end
 
       context 'with an available container' do

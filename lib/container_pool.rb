@@ -10,7 +10,7 @@ class ContainerPool
     @mutex = Mutex.new
 
     @containers = Concurrent::Hash[ExecutionEnvironment.all.map { |execution_environment| [execution_environment.id, Concurrent::Array.new] }]
-    #as containers are not containing containers in use
+    # as containers are not containing containers in use
     @all_containers = Concurrent::Hash[ExecutionEnvironment.all.map { |execution_environment| [execution_environment.id, Concurrent::Array.new] }]
     @container_mapping = Concurrent::Hash[]
   end
@@ -24,7 +24,7 @@ class ContainerPool
   end
 
   def config
-    #TODO: Why erb?
+    # TODO: Why erb?
     @config ||= CodeOcean::Config.new(:docker).read(erb: true)[:pool]
   end
 
@@ -56,7 +56,7 @@ class ContainerPool
     @container_mapping[container.id] = container
     if !@containers[execution_environment.id].include?(container)
       @containers[execution_environment.id].push(container)
-      #Rails.logger.debug('Added container ' + container.to_s + ' to all_pool for execution environment ' + execution_environment.to_s + '. Containers in all_pool: ' + @all_containers[execution_environment.id].size.to_s)
+      # Rails.logger.debug('Added container ' + container.to_s + ' to all_pool for execution environment ' + execution_environment.to_s + '. Containers in all_pool: ' + @all_containers[execution_environment.id].size.to_s)
     else
       Rails.logger.error('failed trying to add existing container ' + container.to_s + ' to execution_environment ' + execution_environment.to_s)
     end
@@ -70,7 +70,7 @@ class ContainerPool
     Rails.logger.info('trying to create container for execution environment: ' + execution_environment.to_s)
     container = DockerClient.create_container(execution_environment)
     container.status = :available
-    #Rails.logger.debug('created container ' + container.to_s + ' for execution environment ' + execution_environment.to_s)
+    # Rails.logger.debug('created container ' + container.to_s + ' for execution environment ' + execution_environment.to_s)
     add_to_all_containers(container, execution_environment)
     container
   end
@@ -105,7 +105,7 @@ class ContainerPool
             Rails.logger.debug('get_container all container count: ' + @all_containers[execution_environment.id].size.to_s)
           else
             Rails.logger.error('docker_container_pool.get_container retrieved a container not running. Container will be removed from list:  ' + container.to_s)
-            #TODO: check in which state the container actually is and treat it accordingly (dead,... => destroy?)
+            # TODO: check in which state the container actually is and treat it accordingly (dead,... => destroy?)
             container = replace_broken_container(container, execution_environment)
           end
         rescue Docker::Error::NotFoundError => error
@@ -137,15 +137,14 @@ class ContainerPool
   end
 
   def quantities
-    puts @containers.map { |key, value| [key, value.length] }.to_h
-    @containers.map { |key, value| [key, value.length] }.to_h
+    @containers.transform_values { |value| value.length }
   end
 
   def dump_info
     {
-        process: $$,
-        containers: @containers.as_json,
-        all_containers: @all_containers.as_json
+      process: $$,
+      containers: @containers.as_json,
+      all_containers: @all_containers.as_json
     }
   end
 
@@ -164,9 +163,9 @@ class ContainerPool
     if refill_count > 0
       Rails.logger.info('Adding ' + refill_count.to_s + ' containers for execution_environment ' + execution_environment.name)
       multiple_containers = refill_count.times.map { create_container(execution_environment) }
-      #Rails.logger.info('Created containers: ' + multiple_containers.to_s )
-      #Rails.logger.debug('@containers  for ' + execution_environment.name.to_s + ' (' + @containers.object_id.to_s + ') has the following content: '+ @containers[execution_environment.id].to_s)
-      #Rails.logger.debug('@all_containers for '  + execution_environment.name.to_s + ' (' + @all_containers.object_id.to_s + ') has the following content: ' + @all_containers[execution_environment.id].to_s)
+      # Rails.logger.info('Created containers: ' + multiple_containers.to_s )
+      # Rails.logger.debug('@containers  for ' + execution_environment.name.to_s + ' (' + @containers.object_id.to_s + ') has the following content: '+ @containers[execution_environment.id].to_s)
+      # Rails.logger.debug('@all_containers for '  + execution_environment.name.to_s + ' (' + @all_containers.object_id.to_s + ') has the following content: ' + @all_containers[execution_environment.id].to_s)
     end
   end
 
