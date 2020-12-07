@@ -1,6 +1,6 @@
 # README
 
-[![Build Status](https://travis-ci.com/openHPI/dockercontainerpool.svg?branch=master)](https://travis-ci.com/openHPI/dockercontainerpool)
+[![Build Status](https://github.com/openHPI/dockercontainerpool/workflows/CI/badge.svg)](https://github.com/openHPI/dockercontainerpool/actions?query=workflow%3ACI)
 
 This project is designed to work in conjunction with [CodeOcean](https://github.com/openHPI/codeocean) **on the same local machine**.
 
