@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script is intended to be called during Vagrant provisioning
+# by CodeOcean and should not be called individually.
+
 #### DOCKERCONTAINERPOOL INSTALL ####
 cd /home/vagrant/dockercontainerpool
 
