@@ -19,6 +19,8 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+require 'telegraf/rails'
+
 module DockerContainerPool
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -39,5 +41,7 @@ module DockerContainerPool
 
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
+
+    config.telegraf.rack.tags = {application: 'dockercontainerpool'}
   end
 end
