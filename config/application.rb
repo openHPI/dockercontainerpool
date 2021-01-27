@@ -42,6 +42,6 @@ module DockerContainerPool
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
 
-    config.telegraf.rack.tags = {application: 'dockercontainerpool'}
+    config.telegraf.tags = { application: 'dockercontainerpool' }
   end
 end

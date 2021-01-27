@@ -197,7 +197,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    telegraf (0.8.0)
+    telegraf (1.0.0)
       influxdb
     thor (1.0.1)
     tzinfo (2.0.4)
