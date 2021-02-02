@@ -61,7 +61,7 @@ GEM
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
     amq-protocol (2.3.2)
-    bootsnap (1.6.0)
+    bootsnap (1.7.0)
       msgpack (~> 1.0)
     builder (3.2.4)
     bunny (2.17.0)
@@ -111,7 +111,7 @@ GEM
     mnemosyne-ruby (1.11.0)
       activesupport (>= 4)
       bunny
-    msgpack (1.4.1)
+    msgpack (1.4.2)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     newrelic_rpm (6.15.0)
