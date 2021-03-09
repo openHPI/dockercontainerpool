@@ -29,7 +29,8 @@ gem 'docker-api', require: 'docker'
 gem 'concurrent-ruby'
 gem 'mnemosyne-ruby'
 gem 'newrelic_rpm'
-gem 'sentry-raven'
+gem 'sentry-rails'
+gem 'sentry-ruby'
 
 gem 'telegraf'
 
