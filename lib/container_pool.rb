@@ -143,6 +143,7 @@ class ContainerPool
   def dump_info
     {
       process: $$,
+      release: Sentry.configuration.release,
       containers: @containers.as_json,
       all_containers: @all_containers.as_json
     }
