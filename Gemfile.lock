@@ -72,11 +72,11 @@ GEM
     crass (1.0.6)
     diff-lcs (1.4.4)
     docile (1.4.0)
-    docker-api (2.1.0)
+    docker-api (2.2.0)
       excon (>= 0.47.0)
       multi_json
     erubi (1.10.0)
-    excon (0.82.0)
+    excon (0.84.0)
     factory_bot (6.2.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.2.0)
