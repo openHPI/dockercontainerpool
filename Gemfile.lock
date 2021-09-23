@@ -192,7 +192,7 @@ GEM
       rspec-support (~> 3.10)
     rspec-support (3.10.2)
     ruby2_keywords (0.0.5)
-    sentry-rails (4.7.2)
+    sentry-rails (4.7.3)
       railties (>= 5.0)
       sentry-ruby-core (~> 4.7.0)
     sentry-ruby (4.7.3)
