@@ -176,4 +176,6 @@ class ContainerPool
     }
     @refill_task.execute
   end
+
+  class EmptyError < RuntimeError; end
 end

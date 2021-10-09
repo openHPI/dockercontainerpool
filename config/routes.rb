@@ -9,4 +9,5 @@ Rails.application.routes.draw do
     get 'dump_info', to: 'container_pool#dump_info'
   end
 
+  resources :ping, only: :index, defaults: { format: :json }
 end
