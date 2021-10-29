@@ -17,6 +17,12 @@ class DockerClient
 
   attr_reader :container
 
+  def self.check_availability!
+    Timeout.timeout(config[:connection_timeout]) { Docker.version }
+  rescue Excon::Errors::SocketError, Excon::Error::Socket, Timeout::Error
+    raise Error.new("The Docker host at #{Docker.url} is not reachable!")
+  end
+
   def self.clean_container_workspace(container)
     # remove files when using transferral via Docker API archive_in (transmit)
     # container.exec(['bash', '-c', 'rm -rf ' + CONTAINER_WORKSPACE_PATH + '/*'])

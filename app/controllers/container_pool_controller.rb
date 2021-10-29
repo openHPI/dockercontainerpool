@@ -25,6 +25,13 @@ class ContainerPoolController < ActionController::API
     render json: { }
   end
 
+  def available_images
+    DockerClient.check_availability!
+    render json: DockerClient.image_tags
+  rescue DockerClient::Error => e
+    render json: { error: e.message }, status: :internal_server_error
+  end
+
   def quantities
     render json: ContainerPool.instance.quantities
   end

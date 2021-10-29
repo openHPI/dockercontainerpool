@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     get 'destroy_container/:container_id', to: 'container_pool#destroy_container'
     get 'quantities', to: 'container_pool#quantities'
     get 'dump_info', to: 'container_pool#dump_info'
+    get 'available_images', to: 'container_pool#available_images'
   end
 
   resources :ping, only: :index, defaults: { format: :json }
