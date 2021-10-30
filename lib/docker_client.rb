@@ -132,13 +132,13 @@ class DockerClient
   end
 
 
-  def kill_after_timeout(container)
+  def kill_after_timeout(container, timeout = @execution_environment.permitted_execution_time.to_i + 3)
+    # the timeout is specified in seconds and includes some extra time for request handling
     """
     We need to start a second thread to kill the websocket connection,
     as it is impossible to determine whether further input is requested.
     """
     @thread = Thread.new do
-      timeout = (@execution_environment.permitted_execution_time.to_i + 3)  # seconds and some extra time for request handling
       sleep(timeout)
       container = ContainerPool.instance.translate(container.id)
       if container && container.status != :available
@@ -149,7 +149,7 @@ class DockerClient
           ActiveRecord::Base.connection_pool.release_connection
         end
       else
-        Rails.logger.info('Container' + container.to_s + ' already removed.')
+        Rails.logger.info('Container' + container.to_s + ' already removed (timeout triggered).')
       end
     ensure
       # guarantee that the thread is releasing the DB connection after it is done

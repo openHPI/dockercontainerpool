@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     post 'get_container/:execution_environment_id', to: 'container_pool#get_container'
     put 'return_container/:container_id', to: 'container_pool#return_container'
     delete 'destroy_container/:container_id', to: 'container_pool#destroy_container'
+    post 'reuse_container/:container_id', to: 'container_pool#reuse_container'
     get 'quantities', to: 'container_pool#quantities'
     get 'dump_info', to: 'container_pool#dump_info'
     get 'available_images', to: 'container_pool#available_images'

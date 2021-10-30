@@ -2,7 +2,8 @@ class ContainerPoolController < ActionController::API
   def get_container
     execution_environment_id = params[:execution_environment_id].to_i
     execution_environment = ExecutionEnvironment.find(execution_environment_id)
-    container = ContainerPool.instance.get_container(execution_environment)
+    inactivity_timeout = params[:inactivity_timeout].to_i
+    container = ContainerPool.instance.get_container(execution_environment, inactivity_timeout)
 
     render json: {
       id: container ? container.id : nil
@@ -25,6 +26,14 @@ class ContainerPoolController < ActionController::API
     render json: { }
   end
 
+  def reuse_container
+    container_id = params[:container_id]
+    container = ContainerPool.instance.translate(container_id)
+    reset_container_timer container, params[:inactivity_timeout].to_i
+
+    render json: { }
+  end
+
   def available_images
     DockerClient.check_availability!
     render json: DockerClient.image_tags
@@ -38,5 +47,14 @@ class ContainerPoolController < ActionController::API
 
   def dump_info
     render json: ContainerPool.instance.dump_info
+  end
+
+  private
+
+  def reset_container_timer(container, time)
+    return unless container.blank? || time.blank?
+
+    container.docker_client.exit_thread_if_alive
+    container.docker_client.kill_after_timeout(container, time)
   end
 end
