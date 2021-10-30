@@ -11,6 +11,7 @@ class DockerClient
   LOCAL_WORKSPACE_ROOT = File.expand_path(self.config[:workspace_root])
   RECYCLE_CONTAINERS = true
   RETRY_COUNT = 2
+  LIMIT_CONTAINER_LIFETIME = false
   MINIMUM_CONTAINER_LIFETIME = 10.minutes
   MAXIMUM_CONTAINER_LIFETIME = 20.minutes
   SELF_DESTROY_GRACE_PERIOD = 2.minutes
@@ -78,27 +79,29 @@ class DockerClient
     container.re_use = true
     container.docker_client = new(execution_environment: execution_environment)
 
-    Thread.new do
-      timeout = Random.rand(MINIMUM_CONTAINER_LIFETIME..MAXIMUM_CONTAINER_LIFETIME) # seconds
-      sleep(timeout)
-      container.re_use = false
-      if container.status != :executing
-        container.docker_client.kill_container(container, false)
-        Rails.logger.info('Killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
-      else
-        Thread.new do
-          timeout = SELF_DESTROY_GRACE_PERIOD.to_i
-          sleep(timeout)
+    if LIMIT_CONTAINER_LIFETIME
+      Thread.new do
+        timeout = Random.rand(MINIMUM_CONTAINER_LIFETIME..MAXIMUM_CONTAINER_LIFETIME) # seconds
+        sleep(timeout)
+        container.re_use = false
+        if container.status != :executing
           container.docker_client.kill_container(container, false)
-          Rails.logger.info('Force killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
-        ensure
-          # guarantee that the thread is releasing the DB connection after it is done
-          ActiveRecord::Base.connection_pool.release_connection
+          Rails.logger.info('Killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
+        else
+          Thread.new do
+            timeout = SELF_DESTROY_GRACE_PERIOD.to_i
+            sleep(timeout)
+            container.docker_client.kill_container(container, false)
+            Rails.logger.info('Force killing container in status ' + container.status.to_s + ' after ' + (Time.now - container.start_time).to_s + ' seconds.')
+          ensure
+            # guarantee that the thread is releasing the DB connection after it is done
+            ActiveRecord::Base.connection_pool.release_connection
+          end
         end
+      ensure
+        # guarantee that the thread is releasing the DB connection after it is done
+        ActiveRecord::Base.connection_pool.release_connection
       end
-    ensure
-      # guarantee that the thread is releasing the DB connection after it is done
-      ActiveRecord::Base.connection_pool.release_connection
     end
 
     container
