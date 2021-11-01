@@ -160,7 +160,7 @@ class ContainerPool
   end
 
   def refill_for_execution_environment(execution_environment)
-    refill_count = [execution_environment.pool_size - @all_containers[execution_environment.id].length, config[:refill][:batch_size]].min
+    refill_count = [execution_environment.pool_size - @containers[execution_environment.id].length, config[:refill][:batch_size]].min
     if refill_count > 0
       Rails.logger.info('Adding ' + refill_count.to_s + ' containers for execution_environment ' + execution_environment.name)
       multiple_containers = refill_count.times.map { create_container(execution_environment) }
