@@ -85,7 +85,7 @@ class ContainerPool
     end
   end
 
-  def get_container(execution_environment)
+  def get_container(execution_environment, inactivity_timeout = nil)
     # if pooling is active, do pooling, otherwise just create an container and return it
     if config[:active]
       container = nil
@@ -118,7 +118,7 @@ class ContainerPool
       container&.status = :executing
     end
     # returning nil is no problem. then the pool is just depleted.
-    container.docker_client.kill_after_timeout(container) unless container.blank?
+    container.docker_client.kill_after_timeout(container, inactivity_timeout) unless container.blank?
     container
   end
 
@@ -160,7 +160,7 @@ class ContainerPool
   end
 
   def refill_for_execution_environment(execution_environment)
-    refill_count = [execution_environment.pool_size - @all_containers[execution_environment.id].length, config[:refill][:batch_size]].min
+    refill_count = [execution_environment.pool_size - @containers[execution_environment.id].length, config[:refill][:batch_size]].min
     if refill_count > 0
       Rails.logger.info('Adding ' + refill_count.to_s + ' containers for execution_environment ' + execution_environment.name)
       multiple_containers = refill_count.times.map { create_container(execution_environment) }
