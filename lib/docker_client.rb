@@ -17,6 +17,7 @@ class DockerClient
   SELF_DESTROY_GRACE_PERIOD = 2.minutes
 
   attr_reader :container
+  attr_accessor :execution_environment
 
   def self.check_availability!
     Timeout.timeout(config[:connection_timeout]) { Docker.version }
