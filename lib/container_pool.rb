@@ -124,7 +124,7 @@ class ContainerPool
 
   def replace_broken_container(container, execution_environment)
     remove_from_all_containers(container, execution_environment)
-    missing_counter_count = execution_environment.pool_size - @all_containers[execution_environment.id].length
+    missing_counter_count = execution_environment.pool_size - @containers[execution_environment.id].length
     if missing_counter_count > 0
       Rails.logger.error('replace_broken_container: Creating a new container and returning that.')
       new_container = create_container(execution_environment)
