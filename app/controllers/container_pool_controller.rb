@@ -52,7 +52,7 @@ class ContainerPoolController < ActionController::API
   private
 
   def reset_container_timer(container, time)
-    return unless container.blank? || time.blank?
+    return if container.blank? || time.blank?
 
     container.docker_client.exit_thread_if_alive
     container.docker_client.kill_after_timeout(container, time)
