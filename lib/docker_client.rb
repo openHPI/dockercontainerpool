@@ -17,6 +17,7 @@ class DockerClient
   SELF_DESTROY_GRACE_PERIOD = 2.minutes
 
   attr_reader :container
+  attr_accessor :execution_environment
 
   def self.check_availability!
     Timeout.timeout(config[:connection_timeout]) { Docker.version }
@@ -188,7 +189,7 @@ class DockerClient
       elsif !create_new
         Rails.logger.error('Container killed and removed for ' + @execution_environment.to_s + ' but not creating a new one. Currently, ' + missing_counter_count.abs.to_s + ' more containers than the configured pool size are available.')
       else
-        Rails.logger.error('Container killed and removed for ' + @execution_environment.to_s + ' but not creating a new one as per request. Currently, ' + missing_counter_count.to_s + ' containers are missing compared to the configured pool size are available. Negative number means there are too much containers')
+        Rails.logger.error('Container killed and removed for ' + @execution_environment.to_s + ' but not creating a new one as per request. Currently, ' + missing_counter_count.to_s + ' containers are missing compared to the configured pool size are available. Negative number means there are too many containers')
       end
     end
 
