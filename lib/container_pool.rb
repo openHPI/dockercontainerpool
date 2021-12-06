@@ -137,7 +137,16 @@ class ContainerPool
   end
 
   def quantities
-    @containers.transform_values { |value| value.length }
+    @all_containers.map do |execution_environment_id, _|
+      {
+        execution_environment_id => {
+          id: execution_environment_id,
+          prewarmingPoolSize: ExecutionEnvironment.find(execution_environment_id).pool_size,
+          idleRunners: @containers[execution_environment_id].length,
+          usedRunners: @all_containers[execution_environment_id].length - @containers[execution_environment_id].length
+        }
+      }
+    end.inject(:merge)
   end
 
   def dump_info
