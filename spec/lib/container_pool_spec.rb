@@ -90,7 +90,14 @@ describe ContainerPool do
   describe '.quantities' do
     it 'maps execution environments to quantities of available containers' do
       expect(described_class.quantities.keys).to eq(ExecutionEnvironment.all.map(&:id))
-      expect(described_class.quantities.values.uniq).to eq([0])
+      expected = {
+        id: @execution_environment.id,
+        prewarmingPoolSize: @execution_environment.pool_size,
+        idleRunners: 0,
+        usedRunners: 0
+      }
+      expect(described_class.quantities[@execution_environment.id]).to eq(expected)
+      expect(described_class.quantities.length).to eq(1)
     end
   end
 

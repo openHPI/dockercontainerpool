@@ -16,7 +16,7 @@ class PingController < ApplicationController
 
   def docker_connected!
     # any unhandled exception leads to a HTTP 500 response.
-    raise ContainerPool::EmptyError unless ContainerPool.instance.quantities.values.sum.positive?
+    raise ContainerPool::EmptyError unless ContainerPool.instance.quantities.values.pluck(:idleRunners).sum.positive?
   end
 
   def postgres_connected!
