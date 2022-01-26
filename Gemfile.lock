@@ -107,7 +107,7 @@ GEM
       bunny
     msgpack (1.4.4)
     multi_json (1.15.0)
-    newrelic_rpm (8.3.0)
+    newrelic_rpm (8.4.0)
     nio4r (2.5.8)
     nokogiri (1.13.1)
       mini_portile2 (~> 2.7.0)
