@@ -61,7 +61,7 @@ GEM
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
     amq-protocol (2.3.2)
-    bootsnap (1.10.2)
+    bootsnap (1.10.3)
       msgpack (~> 1.2)
     builder (3.2.4)
     bunny (2.19.0)
