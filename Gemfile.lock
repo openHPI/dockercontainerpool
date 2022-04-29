@@ -107,7 +107,6 @@ GEM
       bunny
     msgpack (1.4.5)
     multi_json (1.15.0)
-    newrelic_rpm (8.6.0)
     nio4r (2.5.8)
     nokogiri (1.13.4)
       mini_portile2 (~> 2.8.0)
@@ -222,7 +221,6 @@ DEPENDENCIES
   forgery
   listen
   mnemosyne-ruby
-  newrelic_rpm
   pg (>= 0.18, < 2.0)
   puma (~> 5.6)
   rails (~> 6.1.5)

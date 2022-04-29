@@ -28,7 +28,6 @@ gem 'docker-api', require: 'docker'
 # Error Tracing
 gem 'concurrent-ruby'
 gem 'mnemosyne-ruby'
-gem 'newrelic_rpm'
 gem 'sentry-rails'
 gem 'sentry-ruby'
 
