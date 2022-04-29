@@ -4,6 +4,10 @@
 
 This project is designed to work in conjunction with [CodeOcean](https://github.com/openHPI/codeocean) **on the same local machine**.
 
+## Deprecation Warning
+
+We no longer recommend using DockerContainerPool as an executor for CodeOcean. Instead, we suggest using [Poseidon](https://github.com/openHPI/poseidon) for the best performance and security. Therefore, this project is no longer maintained actively.
+
 ## Local Setup
 
 The setup is similar to CodeOcean and (unfortunately), this ReadMe is still work in progress. Assuming you have CodeOcean installed, perform these steps for the DockerContainerPool in the project root:
